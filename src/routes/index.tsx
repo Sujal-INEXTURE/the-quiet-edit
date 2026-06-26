@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const essays = Route.useLoaderData();
+  const essays = Route.useLoaderData() as Essay[];
   const featured = essays.slice(0, 3);
   const notes = essays.slice(0, 4).map((e) => ({
     slug: e.slug,

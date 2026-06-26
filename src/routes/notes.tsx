@@ -17,7 +17,7 @@ export const Route = createFileRoute("/notes")({
 });
 
 function Notes() {
-  const notes = Route.useLoaderData();
+  const notes = Route.useLoaderData() as Note[];
 
   return (
     <>

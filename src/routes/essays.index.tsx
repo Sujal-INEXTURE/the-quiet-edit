@@ -18,7 +18,7 @@ export const Route = createFileRoute("/essays/")({
 });
 
 function EssaysIndex() {
-  const essays = Route.useLoaderData();
+  const essays = Route.useLoaderData() as Essay[];
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
 
