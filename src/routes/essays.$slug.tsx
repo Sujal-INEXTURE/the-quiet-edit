@@ -40,7 +40,10 @@ export const Route = createFileRoute("/essays/$slug")({
     <div className="mx-auto max-w-2xl px-6 py-40 text-center">
       <p className="eyebrow">404</p>
       <h1 className="mt-6 font-display text-5xl">Essay not found.</h1>
-      <Link to="/essays" className="mt-10 inline-block text-[11px] uppercase tracking-[0.22em] text-accent link-underline">
+      <Link
+        to="/essays"
+        className="mt-10 inline-block text-[11px] uppercase tracking-[0.22em] text-accent link-underline"
+      >
         ← All essays
       </Link>
     </div>
@@ -62,16 +65,6 @@ function EssayPage() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  function share(kind: "twitter" | "copy") {
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    if (kind === "copy") navigator.clipboard?.writeText(url);
-    if (kind === "twitter")
-      window.open(
-        `https://twitter.com/intent/tweet?text=${encodeURIComponent(essay.title)}&url=${encodeURIComponent(url)}`,
-        "_blank",
-      );
-  }
 
   return (
     <>
@@ -106,19 +99,8 @@ function EssayPage() {
         {/* Reading panel — ivory */}
         <div className="bg-reading text-reading-foreground">
           <div className="mx-auto grid max-w-[1200px] grid-cols-12 gap-6 px-6 py-32 md:px-12 md:py-40">
-            <aside className="col-span-12 md:col-span-2">
-              <div className="md:sticky md:top-32">
-                <p className="text-[10px] uppercase tracking-[0.3em] text-reading-foreground/50">
-                  Share
-                </p>
-                <div className="mt-4 flex gap-4 text-xs md:flex-col">
-                  <button onClick={() => share("twitter")} className="link-underline">X</button>
-                  <button onClick={() => share("copy")} className="link-underline">Copy link</button>
-                </div>
-              </div>
-            </aside>
             <div
-              className="prose-editorial col-span-12 md:col-span-8"
+              className="prose-editorial col-span-12 md:col-span-8 md:col-start-3"
               dangerouslySetInnerHTML={{ __html: essay.html }}
             />
           </div>
@@ -126,19 +108,35 @@ function EssayPage() {
 
         {/* Prev/Next */}
         <nav className="border-b border-hairline">
-          <div className="mx-auto grid max-w-[1440px] grid-cols-1 divide-y divide-hairline md:grid-cols-2 md:divide-x md:divide-y-0">
+          <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 px-6 py-16 md:grid-cols-2 md:px-12">
             {prev ? (
-              <Link to="/essays/$slug" params={{ slug: prev.slug }} className="group block px-6 py-16 md:px-12 md:py-24">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">← Previous</p>
-                <p className="mt-6 font-display text-3xl tracking-tight transition-colors group-hover:text-accent">{prev.title}</p>
+              <Link
+                to="/essays/$slug"
+                params={{ slug: prev.slug }}
+                className="group block border-t border-hairline pt-8"
+              >
+                <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                  Previous
+                </p>
+                <p className="mt-4 font-display text-2xl tracking-tight transition-colors group-hover:text-accent">
+                  {prev.title}
+                </p>
               </Link>
-            ) : <div />}
+            ) : null}
             {next ? (
-              <Link to="/essays/$slug" params={{ slug: next.slug }} className="group block px-6 py-16 text-right md:px-12 md:py-24">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Next →</p>
-                <p className="mt-6 font-display text-3xl tracking-tight transition-colors group-hover:text-accent">{next.title}</p>
+              <Link
+                to="/essays/$slug"
+                params={{ slug: next.slug }}
+                className="group block border-t border-hairline pt-8 md:text-right"
+              >
+                <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                  Next
+                </p>
+                <p className="mt-4 font-display text-2xl tracking-tight transition-colors group-hover:text-accent">
+                  {next.title}
+                </p>
               </Link>
-            ) : <div />}
+            ) : null}
           </div>
         </nav>
 
@@ -148,10 +146,21 @@ function EssayPage() {
             <p className="eyebrow">Further reading</p>
             <div className="mt-12 grid grid-cols-1 gap-12 md:grid-cols-3">
               {related.map((r) => (
-                <Link key={r.slug} to="/essays/$slug" params={{ slug: r.slug }} className="group block border-t border-hairline pt-8">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{r.category}</p>
-                  <h3 className="mt-4 font-display text-2xl tracking-tight transition-colors group-hover:text-accent">{r.title}</h3>
-                  <p className="mt-3 font-serif text-sm leading-relaxed text-muted-foreground">{r.excerpt}</p>
+                <Link
+                  key={r.slug}
+                  to="/essays/$slug"
+                  params={{ slug: r.slug }}
+                  className="group block border-t border-hairline pt-8"
+                >
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                    {r.category}
+                  </p>
+                  <h3 className="mt-4 font-display text-2xl tracking-tight transition-colors group-hover:text-accent">
+                    {r.title}
+                  </h3>
+                  <p className="mt-3 font-serif text-sm leading-relaxed text-muted-foreground">
+                    {r.excerpt}
+                  </p>
                 </Link>
               ))}
             </div>

@@ -16,6 +16,7 @@ export interface Essay {
 
 export interface Note {
   id: string;
+  slug: string;
   kind: "text" | "image" | "video" | "quote" | "link";
   title?: string;
   body: string;
@@ -23,6 +24,37 @@ export interface Note {
   image?: string;
   publishedAt: string;
 }
+
+type GhostTag = {
+  slug?: string;
+  name?: string;
+};
+
+type GhostPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt?: string | null;
+  custom_excerpt?: string | null;
+  html?: string | null;
+  primary_tag?: GhostTag | null;
+  published_at: string;
+  reading_time?: number | null;
+  feature_image?: string | null;
+  tags?: GhostTag[];
+};
+
+type GhostContentApi = {
+  posts: {
+    browse: (options: { limit: number; include: string[] }) => Promise<GhostPost[]>;
+  };
+};
+
+type GhostContentApiConstructor = new (options: {
+  url: string;
+  key: string;
+  version: string;
+}) => GhostContentApi;
 
 const SAMPLE_ESSAYS: Essay[] = [
   {
@@ -71,17 +103,40 @@ const SAMPLE_ESSAYS: Essay[] = [
     readingMinutes: 6,
     html: `<p>We are entering a period in which taste — long thought to be decorative — will become structural.</p>`,
   },
+  {
+    slug: "the-ritual-of-editing",
+    title: "The Ritual of Editing",
+    excerpt: "A practical note on pruning pages until only the necessary pressure remains.",
+    category: "Process",
+    publishedAt: "2026-02-12",
+    readingMinutes: 8,
+    html: `<p>Editing is not the removal of personality. It is the removal of noise around personality.</p>
+<p>The page begins to breathe when the ornamental sentence finally leaves.</p>`,
+  },
+  {
+    slug: "against-permanent-urgency",
+    title: "Against Permanent Urgency",
+    excerpt: "What changes when the calendar stops pretending every request is an emergency.",
+    category: "Letters",
+    publishedAt: "2026-01-24",
+    readingMinutes: 5,
+    html: `<p>Urgency is useful in small doses and corrosive as a climate.</p>
+<p>A considered life requires intervals where nothing asks to be answered immediately.</p>`,
+  },
 ];
 
 const SAMPLE_NOTES: Note[] = [
   {
     id: "n1",
+    slug: "curiosity-and-boredom",
     kind: "quote",
+    title: "Curiosity and boredom",
     body: "The cure for boredom is curiosity. There is no cure for curiosity.",
     publishedAt: "2026-06-18",
   },
   {
     id: "n2",
+    slug: "on-rooms",
     kind: "text",
     title: "On rooms",
     body: "Spent the morning rereading Bachelard. A house is not a machine for living; it is a geometry of memory.",
@@ -89,30 +144,67 @@ const SAMPLE_NOTES: Note[] = [
   },
   {
     id: "n3",
+    slug: "late-style",
     kind: "link",
     title: "A long read worth your Sunday",
     body: "Edward Said on late style — the artist's last freedom is the freedom to be difficult.",
-    url: "https://example.com/late-style",
     publishedAt: "2026-06-05",
   },
   {
     id: "n4",
+    slug: "bookshop-test",
     kind: "quote",
+    title: "Bookshop test",
     body: "Write the book you would steal from a bookshop.",
     publishedAt: "2026-05-28",
   },
   {
     id: "n5",
+    slug: "translation-test",
     kind: "text",
+    title: "Translation test",
     body: "A useful test: would this sentence survive a translation into French and back?",
     publishedAt: "2026-05-20",
   },
   {
     id: "n6",
+    slug: "studio-note",
     kind: "text",
     title: "Studio note",
     body: "Three things on the desk this week — a Pelikan M800, a copy of Marcus Aurelius, and a single white orchid. The orchid is the most demanding of the three.",
     publishedAt: "2026-05-09",
+  },
+  {
+    id: "n7",
+    slug: "margin-test",
+    kind: "text",
+    title: "Margin test",
+    body: "A paragraph is ready when the margin notes stop arguing with it and begin to nod.",
+    publishedAt: "2026-04-30",
+  },
+  {
+    id: "n8",
+    slug: "sentence-pulse",
+    kind: "quote",
+    title: "Sentence pulse",
+    body: "Keep the sentence that still has a pulse tomorrow.",
+    publishedAt: "2026-04-22",
+  },
+  {
+    id: "n9",
+    slug: "archive-afternoon",
+    kind: "link",
+    title: "Archive afternoon",
+    body: "A catalogue of old notebooks, marginalia, and the small systems writers build to find their own thoughts again.",
+    publishedAt: "2026-04-10",
+  },
+  {
+    id: "n10",
+    slug: "before-sending",
+    kind: "text",
+    title: "Before sending",
+    body: "Read the note once for clarity, once for kindness, and once for rhythm. Then let it go.",
+    publishedAt: "2026-03-29",
   },
 ];
 
@@ -123,12 +215,13 @@ async function fetchFromGhost(): Promise<{ essays: Essay[]; notes: Note[] } | nu
   if (!url || !key) return null;
   try {
     // Lazy import keeps the client tree-shakable on the browser.
-    const GhostContentAPI = (await import("@tryghost/content-api")).default as any;
+    const GhostContentAPI = (await import("@tryghost/content-api"))
+      .default as GhostContentApiConstructor;
     const api = new GhostContentAPI({ url, key, version: "v5.0" });
     const posts = await api.posts.browse({ limit: 50, include: ["tags"] });
     const essays: Essay[] = posts
-      .filter((p: any) => !p.tags?.some((t: any) => t.slug === "note"))
-      .map((p: any) => ({
+      .filter((p) => !p.tags?.some((t) => t.slug === "note"))
+      .map((p) => ({
         slug: p.slug,
         title: p.title,
         excerpt: p.excerpt ?? p.custom_excerpt ?? "",
@@ -139,9 +232,10 @@ async function fetchFromGhost(): Promise<{ essays: Essay[]; notes: Note[] } | nu
         featureImage: p.feature_image,
       }));
     const notes: Note[] = posts
-      .filter((p: any) => p.tags?.some((t: any) => t.slug === "note"))
-      .map((p: any) => ({
+      .filter((p) => p.tags?.some((t) => t.slug === "note"))
+      .map((p) => ({
         id: p.id,
+        slug: p.slug,
         kind: "text" as const,
         title: p.title,
         body: p.excerpt ?? "",
@@ -166,6 +260,18 @@ export async function getEssay(slug: string): Promise<Essay | undefined> {
 export async function getNotes(): Promise<Note[]> {
   const ghost = await fetchFromGhost();
   return ghost?.notes.length ? ghost.notes : SAMPLE_NOTES;
+}
+
+export async function getNote(slug: string): Promise<Note | undefined> {
+  const notes = await getNotes();
+  return notes.find((n) => n.slug === slug || n.id === slug);
+}
+
+export function getNoteTitle(note: Note): string {
+  if (note.title) return note.title;
+  if (note.kind === "quote") return "Quoted fragment";
+  if (note.kind === "link") return "Reading note";
+  return "Desk note";
 }
 
 export function formatDate(iso: string): string {

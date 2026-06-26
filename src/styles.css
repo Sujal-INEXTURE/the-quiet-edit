@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Quiet Luxury — editorial design system.
- * Backgrounds cosmic black, ivory reading panels, champagne gold accents.
+ * Quiet Luxury editorial system.
+ * Light and dark palettes share the same ivory, ink, and champagne materials.
  */
 
 @theme inline {
@@ -47,17 +47,17 @@
 }
 
 :root {
-  --background: oklch(0.12 0 0);          /* #070707 cosmic black */
-  --surface: oklch(0.17 0 0);             /* #111111 charcoal */
-  --foreground: oklch(0.93 0.012 80);     /* #EDE7DD warm ivory text */
-  --reading: oklch(0.95 0.014 85);        /* #F6F2EB ivory reading panel */
+  --background: oklch(0.92 0.018 82);
+  --surface: oklch(0.88 0.018 82);
+  --foreground: oklch(0.2 0.008 70);
+  --reading: oklch(0.96 0.012 84);
   --reading-foreground: oklch(0.18 0.005 60);
-  --muted: oklch(0.22 0.005 60);
-  --muted-foreground: oklch(0.73 0.012 80); /* #B9B2A8 */
-  --accent: oklch(0.76 0.08 80);          /* #C9A76A champagne gold */
-  --accent-foreground: oklch(0.12 0 0);
-  --border: oklch(0.76 0.08 80 / 0.25);
-  --hairline: oklch(0.93 0.012 80 / 0.08);
+  --muted: oklch(0.84 0.016 82);
+  --muted-foreground: oklch(0.46 0.011 70);
+  --accent: oklch(0.58 0.08 78);
+  --accent-foreground: oklch(0.98 0.012 82);
+  --border: oklch(0.58 0.08 78 / 0.28);
+  --hairline: oklch(0.2 0.008 70 / 0.12);
 }
 
 .dark {
@@ -101,7 +101,11 @@
     color: var(--color-accent-foreground);
   }
 
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-family: var(--font-display);
     font-weight: 300;
     letter-spacing: -0.02em;
@@ -156,7 +160,9 @@
   font-size: 1.25rem;
   line-height: 1.7;
   color: var(--color-reading-foreground);
-  & p { margin-bottom: 1.5em; }
+  & p {
+    margin-bottom: 1.5em;
+  }
   & h2 {
     font-size: 2rem;
     margin: 2.5em 0 0.75em;
@@ -179,11 +185,14 @@
     border-bottom: 1px solid var(--color-accent);
     text-decoration: none;
   }
-  & img { margin: 2.5em 0; width: 100%; }
+  & img {
+    margin: 2.5em 0;
+    width: 100%;
+  }
   & code {
     font-family: var(--font-mono);
     font-size: 0.9em;
-    background: rgba(0,0,0,0.04);
+    background: rgba(0, 0, 0, 0.04);
     padding: 0.15em 0.4em;
   }
   & pre {

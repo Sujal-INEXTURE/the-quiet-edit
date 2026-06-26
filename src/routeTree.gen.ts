@@ -17,6 +17,7 @@ import { Route as NotesRouteImport } from './routes/notes'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EssaysIndexRouteImport } from './routes/essays.index'
+import { Route as NotesSlugRouteImport } from './routes/notes.$slug'
 import { Route as EssaysSlugRouteImport } from './routes/essays.$slug'
 
 const WorkRoute = WorkRouteImport.update({
@@ -59,6 +60,11 @@ const EssaysIndexRoute = EssaysIndexRouteImport.update({
   path: '/essays/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotesSlugRoute = NotesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => NotesRoute,
+} as any)
 const EssaysSlugRoute = EssaysSlugRouteImport.update({
   id: '/essays/$slug',
   path: '/essays/$slug',
@@ -68,35 +74,38 @@ const EssaysSlugRoute = EssaysSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/notes': typeof NotesRoute
+  '/notes': typeof NotesRouteWithChildren
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/subscribe': typeof SubscribeRoute
   '/work': typeof WorkRoute
   '/essays/$slug': typeof EssaysSlugRoute
+  '/notes/$slug': typeof NotesSlugRoute
   '/essays/': typeof EssaysIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/notes': typeof NotesRoute
+  '/notes': typeof NotesRouteWithChildren
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/subscribe': typeof SubscribeRoute
   '/work': typeof WorkRoute
   '/essays/$slug': typeof EssaysSlugRoute
+  '/notes/$slug': typeof NotesSlugRoute
   '/essays': typeof EssaysIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/notes': typeof NotesRoute
+  '/notes': typeof NotesRouteWithChildren
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/subscribe': typeof SubscribeRoute
   '/work': typeof WorkRoute
   '/essays/$slug': typeof EssaysSlugRoute
+  '/notes/$slug': typeof NotesSlugRoute
   '/essays/': typeof EssaysIndexRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/subscribe'
     | '/work'
     | '/essays/$slug'
+    | '/notes/$slug'
     | '/essays/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/subscribe'
     | '/work'
     | '/essays/$slug'
+    | '/notes/$slug'
     | '/essays'
   id:
     | '__root__'
@@ -132,13 +143,14 @@ export interface FileRouteTypes {
     | '/subscribe'
     | '/work'
     | '/essays/$slug'
+    | '/notes/$slug'
     | '/essays/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  NotesRoute: typeof NotesRoute
+  NotesRoute: typeof NotesRouteWithChildren
   RssDotxmlRoute: typeof RssDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubscribeRoute: typeof SubscribeRoute
@@ -205,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EssaysIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notes/$slug': {
+      id: '/notes/$slug'
+      path: '/$slug'
+      fullPath: '/notes/$slug'
+      preLoaderRoute: typeof NotesSlugRouteImport
+      parentRoute: typeof NotesRoute
+    }
     '/essays/$slug': {
       id: '/essays/$slug'
       path: '/essays/$slug'
@@ -215,10 +234,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface NotesRouteChildren {
+  NotesSlugRoute: typeof NotesSlugRoute
+}
+
+const NotesRouteChildren: NotesRouteChildren = {
+  NotesSlugRoute: NotesSlugRoute,
+}
+
+const NotesRouteWithChildren = NotesRoute._addFileChildren(NotesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  NotesRoute: NotesRoute,
+  NotesRoute: NotesRouteWithChildren,
   RssDotxmlRoute: RssDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubscribeRoute: SubscribeRoute,
@@ -229,3 +258,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
