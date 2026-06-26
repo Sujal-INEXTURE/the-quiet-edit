@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getNotes, formatDate } from "../lib/content";
+import { getNotes, formatDate, type Note } from "../lib/content";
 import { Reveal } from "../components/site/Reveal";
 
 export const Route = createFileRoute("/notes")({
-  loader: () => getNotes(),
+  loader: async (): Promise<Note[]> => getNotes(),
   head: () => ({
     meta: [
       { title: "Notes — Atlas Beaumont" },

@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { getEssays, formatDate } from "../lib/content";
+import { getEssays, formatDate, type Essay } from "../lib/content";
 import { Reveal } from "../components/site/Reveal";
 
 export const Route = createFileRoute("/")({
-  loader: () => getEssays(),
+  loader: async (): Promise<Essay[]> => getEssays(),
   head: () => ({
     meta: [
       { title: "Atlas Beaumont — Essays, Notes, and Correspondence" },

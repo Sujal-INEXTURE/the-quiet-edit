@@ -1,10 +1,17 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { getEssays, getEssay, formatDate } from "../lib/content";
+import { getEssays, getEssay, formatDate, type Essay } from "../lib/content";
 import { Reveal } from "../components/site/Reveal";
 
+type EssayLoaderData = {
+  essay: Essay;
+  prev: Essay | null;
+  next: Essay | null;
+  related: Essay[];
+};
+
 export const Route = createFileRoute("/essays/$slug")({
-  loader: async ({ params }) => {
+  loader: async ({ params }): Promise<EssayLoaderData> => {
     const [essay, all] = await Promise.all([getEssay(params.slug), getEssays()]);
     if (!essay) throw notFound();
     const idx = all.findIndex((e) => e.slug === essay.slug);
