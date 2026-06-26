@@ -1,10 +1,12 @@
 services:
-  - type: web
+  - type: static
     name: the-quiet-edit
-    runtime: node
-    plan: free
     buildCommand: npm install && npm run build
-    startCommand: npm run start
+    staticPublishPath: dist/client
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: NODE_VERSION
         value: 22.16.0
