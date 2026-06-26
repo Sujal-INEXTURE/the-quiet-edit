@@ -21,7 +21,11 @@ export const Route = createFileRoute("/")({
 function Home() {
   const essays = Route.useLoaderData();
   const featured = essays.slice(0, 3);
-  const notes = essays.slice(0, 4);
+  const notes = essays.slice(0, 4).map((e) => ({
+    slug: e.slug,
+    publishedAt: e.publishedAt,
+    excerpt: e.excerpt,
+  }));
 
   return (
     <>

@@ -23,7 +23,7 @@ function EssaysIndex() {
   const [cat, setCat] = useState<string | null>(null);
 
   const categories = useMemo(
-    () => Array.from(new Set(essays.map((e) => e.category))),
+    () => Array.from(new Set(essays.map((e) => e.category))) as string[],
     [essays],
   );
 
