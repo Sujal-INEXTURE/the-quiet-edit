@@ -49,7 +49,7 @@ export const Route = createFileRoute("/essays/$slug")({
 });
 
 function EssayPage() {
-  const { essay, prev, next, related } = Route.useLoaderData();
+  const { essay, prev, next, related } = Route.useLoaderData() as EssayLoaderData;
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
